@@ -17,7 +17,6 @@ const Search = () => {
         const getResults = async () => {
             try {
                 const { data } = await axios.get(`https://pixabay.com/api/?key=41918411-dde77db940663fd72f850c151&q=${search}&image_type=photo`);
-                console.log(data);
                 setResults(data.hits)
             } catch (error) {
                 console.error(error.message);
@@ -32,7 +31,7 @@ const Search = () => {
     <div className="font-['Euclid Circular B']" align='center'>
         <Header />
 
-        <div class="flex w-fit p-3 justify-between items-center text-lg bg-zinc-300 bg-opacity-10 rounded-[8.91px] shadow-inner backdrop-blur-[50.07px]">
+        <div className="flex w-fit p-3 justify-between items-center text-lg bg-zinc-300 bg-opacity-10 rounded-[8.91px] shadow-inner backdrop-blur-[50.07px]">
             <div className='flex items-center'>
                 <CiSearch className='font-bold text-xl' />
                 <div className='text-xl mx-3'>|</div>

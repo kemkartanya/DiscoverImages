@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Header from './Header'
+import Header from '../components/Header'
 import supabase from '../supabase.js'
 
 const Signup = () => {
@@ -13,7 +13,9 @@ const Signup = () => {
         setUser({ ...user, [e.target.name]: e.target.value });
     }
 
-    const handleSignup = async () => {
+    const handleSignup = async (e) => {
+        e.preventDefault();
+        
         const { data, error } = await supabase.auth.signUp({
             email: user.email,
             password: user.password,
@@ -29,20 +31,20 @@ const Signup = () => {
     }
 
   return (
-    <div class="">
+    <div className="">
         <Header />
 
         <div className='text-center text-white'>{mess}</div>
 
-        <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0">
-            <div class="w-full rounded-lg md:mt-0 sm:max-w-md xl:p-0 ">
-                <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-                    <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0">
+            <div className="w-full rounded-lg md:mt-0 sm:max-w-md xl:p-0 ">
+                <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+                    <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                         Create your account
                     </h1>
-                    <form class="space-y-4 md:space-y-6" action="#">
+                    <form className="space-y-4 md:space-y-6" action="#">
                         <div>
-                            <label class="block mb-2 text-sm font-medium">Your email</label>
+                            <label className="block mb-2 text-sm font-medium">Your email</label>
                             <input 
                               type="email" 
                               name="email" 
@@ -68,11 +70,11 @@ const Signup = () => {
                         <button 
                           onClick={handleSignup}
                           type="submit" 
-                          class="w-full text-black bg-white focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                          className="w-full text-black bg-white focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                             Sign up
                         </button>
-                        <p class="text-sm font-light">
-                            Already have an account yet? <a href="/login" class="font-medium hover:underline">Sign in</a>
+                        <p className="text-sm font-light">
+                            Already have an account yet? <a href="/login" className="font-medium hover:underline">Sign in</a>
                         </p>
                     </form>
                 </div>

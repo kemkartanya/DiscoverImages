@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Button,
   Checkbox,
@@ -8,9 +8,46 @@ import {
   DialogFooter,
 } from "@material-tailwind/react";
 import { CgCloseR } from "react-icons/cg";
+import { useNavigate } from 'react-router-dom';
 
 const ItemDetails = ({open, handleOpen, selectedPhoto}) => {
-  console.log(selectedPhoto);
+  const [generateDownloadLink, setGenerateDownloadLink] = useState();
+  const user = JSON.parse(localStorage.getItem('userInfo'));
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setGenerateDownloadLink(selectedPhoto.webformatURL)
+  }, [selectedPhoto]);
+
+  const sizes = [
+    { label: 'Small', suffix: '_180', size: '640x180' },
+    { label: 'Medium', suffix: '_340', size: '640x340' },
+    { label: 'Large', suffix: '_960', size: '1280x1280', url: selectedPhoto.largeImageURL },
+    { label: 'Original', suffix: '_640', size: `${selectedPhoto.webformatWidth}x${selectedPhoto.webformatHeight}` },
+  ];
+
+  const handleSize = (size) => {
+    if(!generateDownloadLink) return;
+    if (size.url) {
+      setGenerateDownloadLink(size.url);
+    } else {
+      setGenerateDownloadLink(`${selectedPhoto.webformatURL.replace('_640', size.suffix)}`);
+    }
+  };
+
+  const handleDownload = () => {
+    if(!user) navigate('/login');
+    else {
+      const link = document.createElement('a');
+      link.href = generateDownloadLink;
+      link.target = "_blank"
+      link.download = selectedPhoto.id + '.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <div>
       <Dialog open={open} handler={handleOpen} className='bg-white text-black m-12 rounded border w-fit'>
@@ -19,79 +56,65 @@ const ItemDetails = ({open, handleOpen, selectedPhoto}) => {
             <CgCloseR onClick={handleOpen} className='cursor-pointer'/>
           </DialogHeader>
 
-          <div className='m-5'>
+          <div className='md:m-5 m-3'>
             <div className='flex items-center justify-center'>
-              <img src={selectedPhoto.userImageURL} className='w-2/3'/>
-              <div className='ml-5'>
+              <img src={selectedPhoto.webformatURL} className='w-2/3'/>
+              <div className='md:ml-5'>
                 <div>
-                  <div className='font-medium text-[21.33px]'>Download</div>
+                  <div className='font-medium md:text-[21.33px]'>Download</div>
 
-                  <div className='border rounded my-3 w-[350px]'>
-                    <div className='flex justify-between items-center p-3 border-b bg-neutral-100'>
-                      <div>Small</div>
-                      <div className='flex items-center'>
-                        <div>640x960</div>
-                        <input type='checkbox' className='ml-5 border bg-[#008000]' checked/>
-                      </div>
-                    </div>
-                    <div className='flex justify-between items-center p-3 border-b'>
-                      <div>Medium</div>
-                      <div className='flex items-center'>
-                        <div>1920x2660</div>
-                        <input type='checkbox' className='ml-5 border bg-[#008000]'/>
-                      </div>
-                    </div>
-                    <div className='flex justify-between items-center p-3 border-b'>
-                      <div>Big</div>
-                      <div className='flex items-center'>
-                        <div>2400x3600</div>
-                        <input type='checkbox' className='ml-5 border bg-[#008000]'/>
-                      </div>
-                    </div>
-                    <div className='flex justify-between items-center p-3'>
-                      <div>Original</div>
-                      <div className='flex items-center'>
-                        <div>3850x5640</div>
-                        <input type='checkbox' className='ml-5 border bg-[#008000]'/>
-                      </div>
-                    </div>
-                  </div>
+                  <ul className='border rounded my-3 md:w-[350px] w-[300px]'>
+                    {sizes.map((size) => (
+                      <li key={size.label} className='flex justify-between items-center p-3 border-b'>
+                        <div>{size.label}</div>
+                        <div className='flex items-center'>
+                          <div>{size.size}</div>
+                          <input
+                            name='size'
+                            type='checkbox'
+                            className='ml-5 border bg-[#008000]'
+                            onChange={() => handleSize(size)}
+                            checked={generateDownloadLink === size.url || generateDownloadLink === `${selectedPhoto.webformatURL.replace('_640', size.suffix)}`}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
 
-                  <div className='w-[350px] p-3 bg-[#4BC34B] text-white text-center rounded cursor-pointer'>
+                  <div className='md:w-[350px] w-[300px] p-3 bg-[#4BC34B] text-white text-center rounded cursor-pointer' onClick={handleDownload}>
                     Download for free!
                   </div>
                 </div>
 
-                <div className='mt-8 w-[350px]'>
-                  <div className='font-medium text-[21.33px]'>Information</div>
-                  <div className='grid grid-cols-3 gap-12'>
-                    <div className='mt-5'>
-                      <div className='text-neutral-700'>User</div>
-                      <div className='font-bold'>{selectedPhoto.user}</div>
-                    </div>
-                    <div className='mt-5'>
-                      <div className='text-neutral-700'>User ID</div>
-                      <div className='font-bold'>{selectedPhoto.user_id}</div>
-                    </div>
-                    <div className='mt-5'>
-                      <div className='text-neutral-700'>Type</div>
-                      <div className='font-bold'>{selectedPhoto.type}</div>
-                    </div>
-                    <div className='mt-5'>
-                      <div className='text-neutral-700'>Views</div>
-                      <div className='font-bold'>{selectedPhoto.views}</div>
-                    </div>
-                    <div className='mt-5'>
-                      <div className='text-neutral-700'>Downloads</div>
-                      <div className='font-bold'>{selectedPhoto.downloads}</div>
-                    </div>
-                    <div className='mt-5'>
-                      <div className='text-neutral-700'>Likes</div>
-                      <div className='font-bold'>{selectedPhoto.likes}</div>
-                    </div>
+                <div className='mt-8 md:w-[350px] w-[300px]'>
+                  <div className='font-medium md:text-[21.33px]'>Information</div>
+                  <div className='grid grid-cols-3 gap-2'>
+                      <div className='mt-5'>
+                          <div className='text-neutral-700 font-bold'>User</div>
+                          <div>{selectedPhoto.user}</div>
+                      </div>
+                      <div className='mt-5'>
+                          <div className='text-neutral-700 font-bold'>User ID</div>
+                          <div>{selectedPhoto.user_id}</div>
+                      </div>
+                      <div className='mt-5'>
+                          <div className='text-neutral-700 font-bold'>Type</div>
+                          <div>{selectedPhoto.type}</div>
+                      </div>
+                      <div className='mt-5'>
+                          <div className='text-neutral-700 font-bold'>Views</div>
+                          <div>{selectedPhoto.views}</div>
+                      </div>
+                      <div className='mt-5'>
+                          <div className='text-neutral-700 font-bold'>Downloads</div>
+                          <div>{selectedPhoto.downloads}</div>
+                      </div>
+                      <div className='mt-5'>
+                          <div className='text-neutral-700 font-bold'>Likes</div>
+                          <div>{selectedPhoto.likes}</div>
+                      </div>
                   </div>
                 </div>
-                
               </div>
             </div>
 
