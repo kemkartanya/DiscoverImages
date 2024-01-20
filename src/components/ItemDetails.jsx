@@ -9,6 +9,7 @@ import {
 } from "@material-tailwind/react";
 import { CgCloseR } from "react-icons/cg";
 import { useNavigate } from 'react-router-dom';
+import supabase from '../supabase';
 
 const ItemDetails = ({open, handleOpen, selectedPhoto}) => {
   const [generateDownloadLink, setGenerateDownloadLink] = useState();
@@ -35,9 +36,17 @@ const ItemDetails = ({open, handleOpen, selectedPhoto}) => {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if(!user) navigate('/login');
     else {
+      const { data, error } = await supabase
+          .from('downloadImages')
+          .insert({ id: selectedPhoto.id, url: selectedPhoto.webformatURL, userId: user.id })
+          .select();
+
+      if(error) console.error(error);
+      else console.log(data);
+
       const link = document.createElement('a');
       link.href = generateDownloadLink;
       link.target = "_blank"
